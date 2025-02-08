@@ -138,15 +138,25 @@ A comprehensive HR Management System built with Flask, designed to handle employ
 
 hr-management/
 ├── app.py # Main application file
+
 ├── database.py # Database configuration
+
 ├── schema.sql # Database schema
+
 ├── requirements.txt # Python dependencies
+
 ├── static/ # Static files (CSS, JS, images)
+
 │ ├── style.css
+
 │ └── profile_pics/ # User profile pictures
+
 ├── templates/ # HTML templates
+
 │ ├── admin/ # Admin interface templates
+
 │ └── employee/ # Employee interface templates
+
 └── venv/ # Virtual environment
 
 
