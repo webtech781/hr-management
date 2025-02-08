@@ -1,0 +1,153 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h2 class="mb-4">Payroll Management</h2>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Employees
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_employees }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Average Salary
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">${{ "%.2f"|format(stats.avg_salary or 0) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Minimum Salary
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">${{ "%.2f"|format(stats.min_salary or 0) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Maximum Salary
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">${{ "%.2f"|format(stats.max_salary or 0) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-arrow-up fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payroll Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Employee Payroll Details</h6>
+            <button class="btn btn-sm btn-success" onclick="exportToExcel()">
+                <i class="fas fa-file-excel me-2"></i>Export to Excel
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="payrollTable">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Position</th>
+                            <th>Base Salary</th>
+                            <th>Days Worked</th>
+                            <th>Overtime Hours</th>
+                            <th>Total Salary</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if emp.profile_pic %}
+                                        <img src="{{ url_for('static', filename='profile_pics/' + emp.profile_pic) }}" 
+                                             class="rounded-circle me-2"
+                                             style="width: 32px; height: 32px; object-fit: cover;">
+                                    {% else %}
+                                        <i class="fas fa-user-circle me-2 text-secondary" style="font-size: 32px;"></i>
+                                    {% endif %}
+                                    {{ emp.first_name }} {{ emp.last_name }}
+                                </div>
+                            </td>
+                            <td>{{ emp.department }}</td>
+                            <td>{{ emp.position }}</td>
+                            <td>${{ "%.2f"|format(emp.salary or 0) }}</td>
+                            <td>{{ emp.days_worked }}</td>
+                            <td>{{ emp.overtime_hours }}</td>
+                            <td>${{ "%.2f"|format((emp.salary or 0) + (emp.overtime_hours or 0) * 50) }}</td>
+                            <td>
+                                <a href="{{ url_for('view_profile', user_id=emp.id) }}" 
+                                   class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+function exportToExcel() {
+    const table = document.getElementById('payrollTable');
+    const ws = XLSX.utils.table_to_sheet(table);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Payroll");
+    XLSX.writeFile(wb, "payroll_data.xlsx");
+}
+</script>
+{% endblock %}
+{% endblock %} 

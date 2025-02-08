@@ -10,6 +10,9 @@ body {
     line-height: 1.6;
     background-color: #f8f9fa;
     color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Container */
@@ -621,4 +624,101 @@ nav a {
     border-radius: 50%;
     margin-right: 8px;
     object-fit: cover;
+}
+
+/* Navbar styling */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255,255,255,.8);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #fff;
+}
+
+/* Active link styling */
+.navbar-dark .navbar-nav .nav-link.active {
+    color: #fff;
+    font-weight: 500;
+}
+
+/* Dropdown styling */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Footer styling */
+.footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Content spacing */
+main {
+    flex: 1;
+}
+
+/* Documentation specific */
+.sticky-top {
+    top: 1rem;
+}
+
+.nav-link {
+    color: #495057;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+}
+
+.nav-link:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+}
+
+/* System Logs Styles */
+.log-badge {
+    font-size: 0.8rem;
+    padding: 0.35em 0.65em;
+}
+
+.log-table td {
+    vertical-align: middle;
+}
+
+.log-stats .card {
+    transition: transform 0.2s;
+}
+
+.log-stats .card:hover {
+    transform: translateY(-5px);
+}
+
+/* Sidebar Icons */
+#sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+    margin-right: 10px;
+}
+
+/* Active Navigation Link */
+#sidebar .nav-item.active .nav-link {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+#sidebar .nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
 } 

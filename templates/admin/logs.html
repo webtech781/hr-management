@@ -1,0 +1,112 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h2 class="mb-4">System Logs</h2>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Logs</h5>
+                    <h2 class="mb-0">{{ stats.total_logs }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Errors</h5>
+                    <h2 class="mb-0">{{ stats.errors }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Warnings</h5>
+                    <h2 class="mb-0">{{ stats.warnings }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Info</h5>
+                    <h2 class="mb-0">{{ stats.info }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs Table -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">System Activity Logs</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Details</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr class="{% if log.type == 'error' %}table-danger{% elif log.type == 'warning' %}table-warning{% endif %}">
+                            <td>{{ log.created_at|format_date }}</td>
+                            <td>
+                                <span class="badge {% if log.type == 'error' %}bg-danger{% elif log.type == 'warning' %}bg-warning{% else %}bg-info{% endif %}">
+                                    {{ log.type|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if log.first_name %}
+                                    {{ log.first_name }} {{ log.last_name }}
+                                    <small class="text-muted">({{ log.role }})</small>
+                                {% else %}
+                                    System
+                                {% endif %}
+                            </td>
+                            <td>{{ log.action }}</td>
+                            <td>{{ log.details }}</td>
+                            <td><small class="text-muted">{{ log.ip_address }}</small></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.badge {
+    font-size: 0.8rem;
+    padding: 0.4em 0.6em;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.table-responsive {
+    min-height: 400px;
+}
+</style>
+{% endblock %} 

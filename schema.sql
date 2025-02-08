@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS overtime;
 DROP TABLE IF EXISTS shifts;
 DROP TABLE IF EXISTS tour_requests;
 DROP TABLE IF EXISTS login_history;
+DROP TABLE IF EXISTS system_logs;
 
 -- Create users table
 CREATE TABLE users (
@@ -109,6 +110,18 @@ CREATE TABLE login_history (
     ip_address TEXT,
     user_agent TEXT,
     status TEXT NOT NULL, -- 'success' or 'failed'
+    FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+-- Create system_logs table
+CREATE TABLE IF NOT EXISTS system_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    type TEXT NOT NULL,  -- 'error', 'warning', 'info'
+    action TEXT NOT NULL,
+    details TEXT,
+    ip_address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 

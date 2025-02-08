@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Table of Contents -->
+            <div class="card sticky-top" style="top: 2rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Contents</h5>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" href="#overview">Overview</a>
+                        <a class="nav-link" href="#features">Features</a>
+                        <a class="nav-link" href="#installation">Installation</a>
+                        <a class="nav-link" href="#configuration">Configuration</a>
+                        <a class="nav-link" href="#usage">Usage</a>
+                        <a class="nav-link" href="#contributing">Contributing</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <!-- Content -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    {% if readme_content %}
+                        {{ readme_content|markdown }}
+                    {% else %}
+                        <h1 id="overview">HR Management System</h1>
+                        <p class="lead">
+                            A comprehensive HR management solution built with Flask and SQLite, 
+                            designed for small to medium-sized organizations.
+                        </p>
+                        
+                        <h2 id="features" class="mt-5">Features</h2>
+                        <ul>
+                            <li>Employee Management</li>
+                            <li>Attendance Tracking</li>
+                            <li>Leave Management</li>
+                            <li>Task Assignment</li>
+                            <li>Performance Monitoring</li>
+                            <li>Document Management</li>
+                        </ul>
+
+                        <h2 id="installation" class="mt-5">Installation</h2>
+                        <div class="bg-light p-3 rounded">
+                            <pre><code>git clone https://github.com/yourusername/hr-management.git
+cd hr-management
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt</code></pre>
+                        </div>
+
+                        <h2 id="configuration" class="mt-5">Configuration</h2>
+                        <p>Configure your database and application settings:</p>
+                        <div class="bg-light p-3 rounded">
+                            <pre><code>flask init-db  # Initialize the database
+# Update config.py with your settings</code></pre>
+                        </div>
+
+                        <h2 id="usage" class="mt-5">Usage</h2>
+                        <p>Start the development server:</p>
+                        <div class="bg-light p-3 rounded">
+                            <pre><code>flask run</code></pre>
+                        </div>
+
+                        <h2 id="contributing" class="mt-5">Contributing</h2>
+                        <p>
+                            Contributions are welcome! Please feel free to submit a Pull Request.
+                            For major changes, please open an issue first to discuss what you would like to change.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -11,6 +11,8 @@ from werkzeug.wrappers import Response
 import os
 import hashlib  # Add this at the top
 from werkzeug.utils import secure_filename
+from flask.cli import with_appcontext
+import click
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -40,6 +42,20 @@ def init_db():
         with app.open_resource('schema.sql', mode='r') as f:
             db.executescript(f.read())
         db.commit()
+        
+        # Log database initialization
+        cursor = db.cursor()
+        cursor.execute('''
+            INSERT INTO system_logs (type, action, details, ip_address)
+            VALUES (?, ?, ?, ?)
+        ''', (
+            'info',
+            'Database Initialization',
+            'Database was initialized with schema.sql',
+            'system'
+        ))
+        db.commit()
+        
         print("Database initialized successfully!")
     except Exception as e:
         print(f"Error initializing database: {e}")
@@ -195,7 +211,7 @@ def view_employees():
         ORDER BY department, first_name
     ''')
     employees = cursor.fetchall()
-    return render_template('view_employees.html', employees=employees)
+    return render_template('admin/view_employees.html', employees=employees)
 
 @app.route('/add_employee', methods=['GET', 'POST'])
 @admin_required
@@ -258,34 +274,55 @@ def edit_employee(id):
     cursor = db.cursor()
     
     if request.method == 'POST':
+        # Get form data
         first_name = request.form['first_name']
         last_name = request.form['last_name']
         email = request.form['email']
         phone = request.form['phone']
+        department = request.form['department']
         position = request.form['position']
-        department = request.form['department'] or None
+        salary = request.form['salary']
         
         try:
             cursor.execute('''
                 UPDATE users 
-                SET first_name=?, last_name=?, email=?, phone=?, 
-                    position=?, department=? 
-                WHERE id=? AND role='employee'
-            ''', (first_name, last_name, email, phone, position, department, id))
+                SET first_name = ?,
+                    last_name = ?,
+                    email = ?,
+                    phone = ?,
+                    department = ?,
+                    position = ?,
+                    salary = ?
+                WHERE id = ?
+            ''', (first_name, last_name, email, phone, department, position, salary, id))
+            
             db.commit()
+            
+            # Log the action
+            log_action(
+                'Employee Update',
+                f'Updated details for employee: {first_name} {last_name}',
+                'info'
+            )
+            
             flash('Employee updated successfully!', 'success')
             return redirect(url_for('view_employees'))
-        except sqlite3.Error as e:
-            flash(f'Error updating employee: {str(e)}', 'error')
+            
+        except sqlite3.IntegrityError:
+            flash('Email already exists!', 'error')
+        except Exception as e:
+            print(f"Error updating employee: {e}")
+            flash('Error updating employee', 'error')
     
-    cursor.execute('SELECT * FROM users WHERE id=? AND role=?', (id, 'employee'))
+    # Get employee data for the form
+    cursor.execute('SELECT * FROM users WHERE id = ?', (id,))
     employee = cursor.fetchone()
     
     if not employee:
         flash('Employee not found', 'error')
         return redirect(url_for('view_employees'))
-        
-    return render_template('edit_employee.html', employee=employee)
+    
+    return render_template('admin/edit_employee.html', employee=employee)
 
 @app.route('/delete_employee/<int:id>')
 @admin_required
@@ -918,11 +955,23 @@ test_password = 'emp123'
 test_hash = generate_password_hash(test_password)
 print(f"Test password '{test_password}' hash: {test_hash}")
 
+def needs_db_init():
+    """Check if database needs initialization."""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+        return cursor.fetchone() is None
+    except Exception:
+        return True
+
+# Update the initialize_database function
 def initialize_database():
-    """Initialize database on startup."""
+    """Initialize database on startup if needed."""
     with app.app_context():
-        if not os.path.exists(app.config['DATABASE']):
+        if needs_db_init():
             init_db()
+            print("Database initialized on startup")
 
 initialize_database()
 
@@ -1075,17 +1124,64 @@ def upload_profile_photo():
     return redirect(url_for('view_profile'))
 
 @app.route('/profile')
+@app.route('/profile/<int:user_id>')
 @login_required
-def view_profile():
+def view_profile(user_id=None):
+    """View profile - admins can view any profile, employees only their own"""
     db = get_db()
     cursor = db.cursor()
     
+    # If no user_id specified, show own profile
+    if user_id is None:
+        user_id = session['user_id']
+    # If not admin and trying to view other's profile, redirect to own profile
+    elif not session.get('is_admin') and user_id != session['user_id']:
+        flash('Access denied', 'error')
+        return redirect(url_for('view_profile'))
+    
+    # Get user data with statistics
     cursor.execute('''
-        SELECT * FROM users WHERE id = ?
-    ''', (session['user_id'],))
+        SELECT u.*,
+               (SELECT COUNT(*) FROM tasks WHERE user_id = u.id AND status = 'completed') as tasks_completed,
+               (SELECT COUNT(*) FROM leave_requests WHERE user_id = u.id AND status = 'approved') as leaves_taken,
+               COALESCE(
+                   (SELECT ROUND(
+                       (COUNT(CASE WHEN status = 'present' OR status = 'late' THEN 1 END) * 100.0 / COUNT(*)
+                   ), 1)
+                   FROM attendance 
+                   WHERE user_id = u.id
+                   AND date >= date('now', '-30 days')
+                   ), 0
+               ) as attendance_rate
+        FROM users u
+        WHERE u.id = ?
+    ''', (user_id,))
+    
     user = cursor.fetchone()
     
-    return render_template('profile.html', user=user)
+    if not user:
+        flash('User not found', 'error')
+        return redirect(url_for('index'))
+    
+    # Get recent activities
+    cursor.execute('''
+        SELECT 'task' as type, title as description, status, created_at
+        FROM tasks 
+        WHERE user_id = ? AND created_at >= date('now', '-30 days')
+        UNION ALL
+        SELECT 'leave' as type, reason as description, status, created_at
+        FROM leave_requests 
+        WHERE user_id = ? AND created_at >= date('now', '-30 days')
+        ORDER BY created_at DESC
+        LIMIT 5
+    ''', (user_id, user_id))
+    
+    recent_activities = cursor.fetchall()
+    
+    return render_template('profile.html', 
+                         user=user, 
+                         recent_activities=recent_activities,
+                         is_own_profile=user_id == session['user_id'])
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -1097,12 +1193,22 @@ def view_credentials():
     db = get_db()
     cursor = db.cursor()
     
-    # Get all users with their credentials
+    # Get all users with their complete information
     cursor.execute('''
-        SELECT id, first_name, last_name, email, username, 
-               role, department, position, created_at
-        FROM users
-        ORDER BY role DESC, department, first_name
+        SELECT u.*,
+               (SELECT COUNT(*) FROM tasks WHERE user_id = u.id AND status = 'completed') as tasks_completed,
+               (SELECT COUNT(*) FROM leave_requests WHERE user_id = u.id AND status = 'approved') as leaves_taken,
+               COALESCE(
+                   (SELECT ROUND(
+                       (COUNT(CASE WHEN status = 'present' OR status = 'late' THEN 1 END) * 100.0 / COUNT(*)
+                   ), 1)
+                   FROM attendance 
+                   WHERE user_id = u.id
+                   AND date >= date('now', '-30 days')
+                   ), 0
+               ) as attendance_rate
+        FROM users u
+        ORDER BY u.role DESC, u.department, u.first_name
     ''')
     
     users = cursor.fetchall()
@@ -1132,6 +1238,52 @@ def view_login_history():
     history = cursor.fetchall()
     return render_template('admin/login_history.html', history=history)
 
+@app.route('/admin/update-password', methods=['POST'])
+@admin_required
+def admin_update_password():
+    employee_id = request.form.get('employee_id')
+    new_password = request.form.get('new_password')
+    
+    if not all([employee_id, new_password]):
+        flash('Please provide both employee ID and new password', 'error')
+        return redirect(url_for('view_credentials'))
+    
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        
+        # Hash the new password using MD5
+        password_hash = hashlib.md5(new_password.encode()).hexdigest()
+        
+        # Update employee password
+        cursor.execute('''
+            UPDATE users 
+            SET password_hash = ?
+            WHERE id = ?
+        ''', (password_hash, employee_id))
+        
+        # Get employee details for confirmation
+        cursor.execute('''
+            SELECT first_name, last_name 
+            FROM users 
+            WHERE id = ?
+        ''', (employee_id,))
+        
+        employee = cursor.fetchone()
+        
+        db.commit()
+        
+        if employee:
+            flash(f"Password updated for {employee['first_name']} {employee['last_name']}", 'success')
+        else:
+            flash('Employee not found', 'error')
+            
+    except Exception as e:
+        print(f"Error updating password: {str(e)}")
+        flash('Error updating password', 'error')
+        
+    return redirect(url_for('view_credentials'))
+
 # Modify the login functions to record login attempts
 def record_login_attempt(user_id, status):
     try:
@@ -1153,5 +1305,256 @@ def record_login_attempt(user_id, status):
     except Exception as e:
         print(f"Error recording login attempt: {e}")
 
+@app.route('/documentation')
+def documentation():
+    """Public documentation page for GitHub users"""
+    return render_template('documentation.html')
+
+@app.route('/readme')
+def view_readme():
+    """Display the README.md file"""
+    try:
+        with open('README.md', 'r') as file:
+            content = file.read()
+        return render_template('documentation.html', readme_content=content)
+    except FileNotFoundError:
+        flash('README.md file not found', 'error')
+        return redirect(url_for('documentation'))
+
+@app.route('/admin/employees-data')
+@admin_required
+def view_employees_data():
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Get all employee data with statistics
+    cursor.execute('''
+        SELECT 
+            u.*,
+            (SELECT COUNT(*) FROM tasks WHERE user_id = u.id AND status = 'completed') as tasks_completed,
+            (SELECT COUNT(*) FROM leave_requests WHERE user_id = u.id AND status = 'approved') as leaves_taken,
+            COALESCE(
+                (SELECT ROUND(
+                    (COUNT(CASE WHEN status = 'present' OR status = 'late' THEN 1 END) * 100.0 / COUNT(*)
+                ), 1)
+                FROM attendance 
+                WHERE user_id = u.id
+                AND date >= date('now', '-30 days')
+                ), 0
+            ) as attendance_rate,
+            (SELECT COUNT(*) FROM overtime WHERE user_id = u.id AND status = 'approved') as overtime_count
+        FROM users u
+        WHERE u.role = 'employee'
+        ORDER BY u.department, u.first_name
+    ''')
+    
+    employees = cursor.fetchall()
+    return render_template('admin/employees_data.html', employees=employees)
+
+@app.route('/admin/logs')
+@admin_required
+def view_logs():
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Get system logs with user details
+    cursor.execute('''
+        SELECT 
+            l.*,
+            u.first_name,
+            u.last_name,
+            u.role
+        FROM system_logs l
+        LEFT JOIN users u ON l.user_id = u.id
+        ORDER BY l.created_at DESC
+        LIMIT 1000
+    ''')
+    
+    logs = cursor.fetchall()
+    
+    # Get statistics
+    cursor.execute('''
+        SELECT 
+            COUNT(*) as total_logs,
+            SUM(CASE WHEN type = 'error' THEN 1 ELSE 0 END) as errors,
+            SUM(CASE WHEN type = 'warning' THEN 1 ELSE 0 END) as warnings,
+            SUM(CASE WHEN type = 'info' THEN 1 ELSE 0 END) as info
+        FROM system_logs
+    ''')
+    
+    stats = cursor.fetchone()
+    
+    return render_template('admin/logs.html', logs=logs, stats=stats)
+
+@app.route('/admin/update-profile-pic/<int:user_id>', methods=['POST'])
+@admin_required
+def admin_update_profile_pic(user_id):
+    if 'photo' not in request.files:
+        flash('No file selected', 'error')
+        return redirect(url_for('view_profile', user_id=user_id))
+    
+    file = request.files['photo']
+    if file.filename == '':
+        flash('No file selected', 'error')
+        return redirect(url_for('view_profile', user_id=user_id))
+    
+    if file and allowed_file(file.filename):
+        # Create a unique filename
+        filename = secure_filename(f"user_{user_id}_{file.filename}")
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        try:
+            db = get_db()
+            cursor = db.cursor()
+            
+            # Get old profile pic
+            cursor.execute('SELECT profile_pic FROM users WHERE id = ?', (user_id,))
+            old_pic = cursor.fetchone()['profile_pic']
+            
+            # Delete old file if exists
+            if old_pic:
+                old_filepath = os.path.join(app.config['UPLOAD_FOLDER'], old_pic)
+                if os.path.exists(old_filepath):
+                    os.remove(old_filepath)
+            
+            # Save new file
+            file.save(filepath)
+            
+            # Update database
+            cursor.execute('''
+                UPDATE users 
+                SET profile_pic = ?
+                WHERE id = ?
+            ''', (filename, user_id))
+            
+            db.commit()
+            flash('Profile photo updated successfully!', 'success')
+            
+        except Exception as e:
+            print(f"Error updating profile pic: {e}")
+            flash('Error updating profile photo', 'error')
+    else:
+        flash('Invalid file type. Please use PNG, JPG, JPEG, or GIF', 'error')
+    
+    return redirect(url_for('view_profile', user_id=user_id))
+
+def log_action(action, details, type='info', user_id=None):
+    """Record system actions in the logs"""
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        
+        cursor.execute('''
+            INSERT INTO system_logs (user_id, type, action, details, ip_address)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            user_id or session.get('user_id'),
+            type,
+            action,
+            details,
+            request.remote_addr
+        ))
+        
+        db.commit()
+    except Exception as e:
+        print(f"Error logging action: {e}")
+
+@click.command('init-db')
+@with_appcontext
+def init_db_command():
+    """Clear the existing data and create new tables."""
+    init_db()
+    click.echo('Initialized the database.')
+
+def init_app(app):
+    """Register database functions with the Flask app."""
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
+
+# Add this after creating the app instance
+init_app(app)
+
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True)
+
+@app.route('/admin/update-employee-password', methods=['POST'])
+@admin_required
+def update_employee_password():
+    user_id = request.form.get('user_id')
+    new_password = request.form.get('new_password')
+    
+    if not user_id or not new_password:
+        flash('Please provide both user ID and new password', 'error')
+        return redirect(url_for('view_employees'))
+    
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        
+        # Hash the new password
+        password_hash = hash_password(new_password)
+        
+        # Update the password
+        cursor.execute('''
+            UPDATE users 
+            SET password_hash = ? 
+            WHERE id = ?
+        ''', (password_hash, user_id))
+        
+        db.commit()
+        
+        # Log the action
+        log_action(
+            'Password Update',
+            f'Password updated for user ID: {user_id}',
+            'info'
+        )
+        
+        flash('Password updated successfully', 'success')
+    except Exception as e:
+        print(f"Error updating password: {e}")
+        flash('Error updating password', 'error')
+    
+    return redirect(url_for('view_employees'))
+
+@app.route('/admin/payrolls')
+@admin_required
+def view_payrolls():
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Get all employees with their payroll information
+    cursor.execute('''
+        SELECT 
+            u.*,
+            (SELECT COUNT(*) FROM overtime 
+             WHERE user_id = u.id 
+             AND status = 'approved' 
+             AND strftime('%Y-%m', date) = strftime('%Y-%m', 'now')
+            ) as overtime_hours,
+            (SELECT COUNT(*) FROM attendance 
+             WHERE user_id = u.id 
+             AND status = 'present'
+             AND strftime('%Y-%m', date) = strftime('%Y-%m', 'now')
+            ) as days_worked
+        FROM users u
+        WHERE u.role = 'employee'
+        ORDER BY u.department, u.first_name
+    ''')
+    
+    employees = cursor.fetchall()
+    
+    # Get payroll statistics
+    cursor.execute('''
+        SELECT 
+            COUNT(*) as total_employees,
+            AVG(salary) as avg_salary,
+            MIN(salary) as min_salary,
+            MAX(salary) as max_salary
+        FROM users
+        WHERE role = 'employee'
+    ''')
+    
+    stats = cursor.fetchone()
+    
+    return render_template('admin/payrolls.html', employees=employees, stats=stats) 

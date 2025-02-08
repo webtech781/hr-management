@@ -1,0 +1,184 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Employee Data Overview</h2>
+        <button class="btn btn-success" onclick="exportToExcel()">
+            <i class="fas fa-file-excel me-2"></i>Export to Excel
+        </button>
+    </div>
+
+    <!-- Department Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <select class="form-select" id="departmentFilter">
+                        <option value="">All Departments</option>
+                        {% for dept in employees|map(attribute='department')|unique|sort %}
+                            <option value="{{ dept }}">{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" id="searchInput" placeholder="Search employees...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Data Table -->
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="employeeTable">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Position</th>
+                            <th>Attendance Rate</th>
+                            <th>Tasks Completed</th>
+                            <th>Leaves Taken</th>
+                            <th>Overtime</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees %}
+                        <tr data-department="{{ emp.department }}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if emp.profile_pic %}
+                                        <img src="{{ url_for('static', filename='profile_pics/' + emp.profile_pic) }}" 
+                                             alt="Profile" 
+                                             class="rounded-circle me-2"
+                                             style="width: 32px; height: 32px; object-fit: cover;">
+                                    {% else %}
+                                        <i class="fas fa-user-circle me-2 text-secondary" style="font-size: 32px;"></i>
+                                    {% endif %}
+                                    <div>
+                                        <div>{{ emp.first_name }} {{ emp.last_name }}</div>
+                                        <small class="text-muted">{{ emp.email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ emp.department }}</td>
+                            <td>{{ emp.position }}</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar {% if emp.attendance_rate >= 90 %}bg-success{% elif emp.attendance_rate >= 75 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ emp.attendance_rate }}%">
+                                        {{ emp.attendance_rate }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ emp.tasks_completed }}</td>
+                            <td>{{ emp.leaves_taken }}</td>
+                            <td>{{ emp.overtime_count }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('view_profile', user_id=emp.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-user me-1"></i>Profile
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-info" 
+                                            onclick="viewStats({{ emp.id }})">
+                                        <i class="fas fa-chart-line me-1"></i>Stats
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Modal -->
+<div class="modal fade" id="statsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Employee Statistics</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="statsChart"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Department filter
+document.getElementById('departmentFilter').addEventListener('change', function() {
+    const department = this.value;
+    const rows = document.querySelectorAll('#employeeTable tbody tr');
+    
+    rows.forEach(row => {
+        if (!department || row.dataset.department === department) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchText = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#employeeTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchText) ? '' : 'none';
+    });
+});
+
+// Export to Excel
+function exportToExcel() {
+    const table = document.getElementById('employeeTable');
+    const ws = XLSX.utils.table_to_sheet(table);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Employees");
+    XLSX.writeFile(wb, "employee_data.xlsx");
+}
+
+// View Statistics
+function viewStats(employeeId) {
+    const modal = new bootstrap.Modal(document.getElementById('statsModal'));
+    modal.show();
+    
+    const ctx = document.getElementById('statsChart');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Performance',
+                data: [65, 72, 78, 75, 82, 85],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Employee Performance Trend'
+                }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}
+{% endblock %} 

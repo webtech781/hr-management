@@ -1,128 +1,75 @@
 # HR Management System
 
-A comprehensive HR Management System built with Flask, designed to handle employee management, attendance tracking, leave management, and more.
+A comprehensive HR management solution built with Flask and SQLite, designed for small to medium-sized organizations.
 
 ## Features
 
-- **User Authentication**
-  - Separate login for employees and administrators
-  - Secure password hashing
-  - Login history tracking
-
 - **Employee Management**
-  - Employee profiles with photo upload
-  - Department organization
-  - Salary information
-  - Contact details
+  - Add, edit, and manage employee profiles
+  - Upload profile pictures
+  - Track employee information
 
 - **Attendance System**
-  - Check-in/Check-out functionality
-  - Attendance history
-  - Late arrival tracking
-  - Monthly attendance reports
+  - Track daily attendance
+  - Record check-in/check-out times
+  - Generate attendance reports
 
 - **Leave Management**
-  - Leave requests submission
-  - Admin approval workflow
-  - Leave history
-  - Multiple leave types
+  - Apply for leaves
+  - Approve/reject leave requests
+  - Track leave history
 
 - **Task Management**
-  - Task assignment
-  - Progress tracking
-  - Task history
+  - Assign tasks to employees
+  - Track task progress
+  - Set deadlines and priorities
 
-- **Shift Management**
-  - Shift scheduling
-  - Shift history
-  - Location tracking
-
-- **Overtime Management**
-  - Overtime requests
-  - Admin approval
-  - Overtime calculations
+- **Security Features**
+  - Role-based access control
+  - Secure password management
+  - Login history tracking
+  - System logs
 
 ## Installation
 
-### Prerequisites
-- Python 3.8 or higher
-- pip (Python package manager)
-- Git (optional)
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/hr-management.git
+cd hr-management
+```
 
-### Windows Installation
+2. Create and activate virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-1. Install Python:
-   ```bash
-   # Download Python from https://www.python.org/downloads/
-   # During installation, check "Add Python to PATH"
-   ```
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-2. Clone the repository:
-   ```bash
-   git clone https://github.com/webtech781/hr-management.git
-   # Or download and extract the ZIP file
-   ```
+## Configuration
 
-3. Create a virtual environment:
-   ```bash
-   cd hr-management
-   python -m venv venv
-   venv\Scripts\activate
-   ```
+1. Initialize the database:
+```bash
+flask init-db
+```
 
-4. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+2. Update configuration settings in `config.py`
 
-5. Initialize the database:
-   ```bash
-   flask init-db
-   ```
+## Usage
 
-6. Run the application:
-   ```bash
-   flask run
-   ```
+Start the development server:
+```bash
+flask run
+```
 
-### Linux/MacOS Installation
+Visit `http://localhost:5000` in your browser.
 
-1. Install Python (if not installed):
-   ```bash
-   # Ubuntu/Debian
-   sudo apt update
-   sudo apt install python3 python3-pip python3-venv
+## Contributing
 
-   # MacOS with Homebrew
-   brew install python3
-   ```
-
-2. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/hr-management.git
-   ```
-
-3. Create a virtual environment:
-   ```bash
-   cd hr-management
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-4. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-5. Initialize the database:
-   ```bash
-   flask init-db
-   ```
-
-6. Run the application:
-   ```bash
-   flask run
-   ```
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Default Credentials
 
