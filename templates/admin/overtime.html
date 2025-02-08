@@ -1,0 +1,101 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">Overtime Management</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOvertimeModal">
+            <i class="fas fa-plus"></i> Add Overtime
+        </button>
+    </div>
+
+    <!-- Overtime Records -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-clock me-2"></i>Overtime Records
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Employee</th>
+                            <th>Hours</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in overtime_records %}
+                        <tr>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.first_name }} {{ record.last_name }}</td>
+                            <td>{{ record.hours }}</td>
+                            <td>{{ record.reason }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if record.status == 'approved' else 'warning' }}">
+                                    {{ record.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Overtime Modal -->
+<div class="modal fade" id="addOvertimeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Overtime Record</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_overtime') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Employee</label>
+                        <select class="form-select" name="employee_id" required>
+                            <option value="">Select Employee</option>
+                            {% for employee in employees %}
+                            <option value="{{ employee.id }}">
+                                {{ employee.first_name }} {{ employee.last_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Hours</label>
+                        <input type="number" class="form-control" name="hours" min="1" max="12" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reason</label>
+                        <textarea class="form-control" name="reason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Overtime</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

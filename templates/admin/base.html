@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Management System - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>HR Management</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <!-- Main Section -->
+                <div class="sidebar-heading">Main</div>
+                <li class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                    <a href="{{ url_for('admin_dashboard') }}">
+                        <i class="fas fa-fw fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <div class="sidebar-divider"></div>
+                <!-- Employee Management Section -->
+                <div class="sidebar-heading">Employee Management</div>
+                <li class="{% if request.endpoint == 'view_employees' %}active{% endif %}">
+                    <a href="{{ url_for('view_employees') }}">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>View Employees</span>
+                    </a>
+                </li>
+                <li class="{% if request.endpoint == 'add_employee' %}active{% endif %}">
+                    <a href="{{ url_for('add_employee') }}">
+                        <i class="fas fa-fw fa-user-plus"></i>
+                        <span>Add Employee</span>
+                    </a>
+                </li>
+
+                <div class="sidebar-divider"></div>
+                <div class="sidebar-heading">Shift Management</div>
+                <li class="{% if request.endpoint == 'manage_shifts' %}active{% endif %}">
+                    <a href="{{ url_for('manage_shifts') }}">
+                        <i class="fas fa-fw fa-calendar-alt"></i>
+                        <span>Shift Schedule</span>
+                    </a>
+                </li>
+                <li class="{% if request.endpoint == 'manage_overtime' %}active{% endif %}">
+                    <a href="{{ url_for('manage_overtime') }}">
+                        <i class="fas fa-fw fa-clock"></i>
+                        <span>Overtime</span>
+                    </a>
+                </li>
+
+                <div class="sidebar-divider"></div>
+                <!-- Requests Section -->
+                <div class="sidebar-heading">Requests</div>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('manage_leaves') }}">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Leave Requests</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-fw fa-plane"></i>
+                        <span>Tour Requests</span>
+                    </a>
+                </li>
+
+                <!-- Account Section - Will stick to bottom -->
+                <div class="account-section">
+                    <div class="sidebar-divider"></div>
+                    <div class="sidebar-heading">Account</div>
+                    <li>
+                        <a href="{{ url_for('logout') }}" class="text-danger">
+                            <i class="fas fa-fw fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </div>
+
+                <!-- Add these items to the sidebar navigation -->
+                <div class="sidebar-heading">Security</div>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('view_credentials') }}">
+                        <i class="fas fa-key"></i>
+                        <span>User Credentials</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('view_login_history') }}">
+                        <i class="fas fa-history"></i>
+                        <span>Login History</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <span class="navbar-text ms-auto">
+                        <i class="fas fa-user-circle me-2"></i>
+                        Welcome, {{ session.get('username') }}
+                    </span>
+                </div>
+            </nav>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="container-fluid mt-3">
+                        {% for message in messages %}
+                            <div class="alert alert-info alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('sidebarCollapse').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    </script>
+</body>
+</html> 

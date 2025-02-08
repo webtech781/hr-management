@@ -1,0 +1,275 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">Shift Management</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addShiftModal">
+            <i class="fas fa-plus"></i> Add Shift
+        </button>
+    </div>
+
+    <!-- Calendar View -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-calendar me-2"></i>Shift Schedule
+            </h6>
+            <div class="btn-group">
+                <button class="btn btn-outline-primary btn-sm" onclick="previousMonth()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="currentMonth">
+                    {{ current_month }}
+                </button>
+                <button class="btn btn-outline-primary btn-sm" onclick="nextMonth()">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered calendar-table">
+                    <thead>
+                        <tr>
+                            <th>Sun</th>
+                            <th>Mon</th>
+                            <th>Tue</th>
+                            <th>Wed</th>
+                            <th>Thu</th>
+                            <th>Fri</th>
+                            <th>Sat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calendarBody">
+                        <!-- JavaScript will populate this -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Shift Modal -->
+<div class="modal fade" id="addShiftModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Shift</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_shift') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Employee</label>
+                        <select class="form-select" name="employee_id" required>
+                            <option value="">Select Employee</option>
+                            {% for employee in employees %}
+                            <option value="{{ employee.id }}" data-duration="{{ employee.duration }}">
+                                {{ employee.first_name }} {{ employee.last_name }}
+                                ({{ employee.duration }}hr)
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Shift Type</label>
+                        <select class="form-select" name="shift_type" required>
+                            <option value="">Select Shift</option>
+                            <optgroup label="8 Hours Shifts">
+                                <option value="A">A Shift (6:00 AM - 2:00 PM)</option>
+                                <option value="B">B Shift (2:00 PM - 10:00 PM)</option>
+                                <option value="C">C Shift (10:00 PM - 6:00 AM)</option>
+                            </optgroup>
+                            <optgroup label="12 Hours Shifts">
+                                <option value="G">General Shift (8:00 AM - 8:00 PM)</option>
+                                <option value="N">Night Shift (8:00 PM - 8:00 AM)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-control" name="location" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Shift</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.calendar-table td {
+    height: 120px;
+    width: 14.28%;
+    vertical-align: top;
+    padding: 5px;
+}
+
+.calendar-date {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.shift-entry {
+    font-size: 0.8rem;
+    padding: 2px 4px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+}
+
+.shift-A { background-color: #e3f2fd; }
+.shift-B { background-color: #e8f5e9; }
+.shift-C { background-color: #fff3e0; }
+.shift-G { background-color: #f3e5f5; }
+.shift-N { background-color: #fce4ec; }
+
+.other-month {
+    background-color: #f8f9fc;
+    color: #858796;
+}
+</style>
+
+<script>
+let currentDate = new Date();
+
+function generateCalendar(year, month) {
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const tbody = document.getElementById('calendarBody');
+    tbody.innerHTML = '';
+    
+    let date = new Date(firstDay);
+    date.setDate(date.getDate() - date.getDay()); // Start from Sunday
+    
+    while (date <= lastDay || date.getDay() !== 0) {
+        if (date.getDay() === 0) {
+            var row = document.createElement('tr');
+            tbody.appendChild(row);
+        }
+        
+        const cell = document.createElement('td');
+        const isOtherMonth = date.getMonth() !== month;
+        if (isOtherMonth) cell.classList.add('other-month');
+        
+        const dateStr = date.toISOString().split('T')[0];
+        cell.innerHTML = `
+            <div class="calendar-date">${date.getDate()}</div>
+            <div id="shifts-${dateStr}"></div>
+            ${date.getMonth() === month ? `
+                <button class="btn btn-sm btn-link p-0" onclick="addShift('${dateStr}')">
+                    <i class="fas fa-plus"></i>
+                </button>
+            ` : ''}
+        `;
+        
+        row.appendChild(cell);
+        date.setDate(date.getDate() + 1);
+    }
+    
+    // Update month display
+    document.getElementById('currentMonth').textContent = 
+        new Date(year, month).toLocaleDateString('default', { year: 'numeric', month: 'long' });
+    
+    // Populate shifts
+    populateShifts();
+}
+
+function populateShifts() {
+    const shifts = {{ shifts|tojson|safe }};
+    shifts.forEach(shift => {
+        const container = document.getElementById(`shifts-${shift.date}`);
+        if (container) {
+            container.innerHTML += `
+                <div class="shift-entry shift-${shift.shift_type}" title="Location: ${shift.location}">
+                    ${shift.first_name} ${shift.last_name}
+                    (${getShiftTime(shift.shift_type)})
+                </div>
+            `;
+        }
+    });
+}
+
+function getShiftTime(type) {
+    const times = {
+        'A': '6AM-2PM',
+        'B': '2PM-10PM',
+        'C': '10PM-6AM',
+        'G': '8AM-8PM',
+        'N': '8PM-8AM'
+    };
+    return times[type] || '';
+}
+
+function addShift(date) {
+    const dateInput = document.querySelector('[name="date"]');
+    dateInput.value = date;
+    new bootstrap.Modal(document.getElementById('addShiftModal')).show();
+}
+
+function previousMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+}
+
+function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+}
+
+// Initialize calendar
+generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+
+// Handle employee duration-based shift options
+document.querySelector('[name="employee_id"]').addEventListener('change', function() {
+    const duration = this.options[this.selectedIndex].dataset.duration;
+    const shiftSelect = document.querySelector('[name="shift_type"]');
+    
+    Array.from(shiftSelect.querySelectorAll('optgroup')).forEach(group => {
+        if (duration === '8' && group.label.includes('8 Hours') ||
+            duration === '12' && group.label.includes('12 Hours')) {
+            group.style.display = '';
+        } else {
+            group.style.display = 'none';
+        }
+    });
+    
+    shiftSelect.value = '';
+});
+
+// Add this after your existing JavaScript
+document.querySelector('#addShiftModal form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{{ url_for("add_shift") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(() => {
+        // Close modal
+        bootstrap.Modal.getInstance(document.getElementById('addShiftModal')).hide();
+        
+        // Refresh calendar
+        generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+        
+        // Clear form
+        this.reset();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error adding shift. Please try again.');
+    });
+});
+</script>
+{% endblock %} 

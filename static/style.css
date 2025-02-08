@@ -1,0 +1,624 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Login Page Styles */
+.login-container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 20px;
+    border: none;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 5px;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background-color: #1cc88a;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #169b6b;
+    transform: translateY(-1px);
+}
+
+.btn-block {
+    width: 100%;
+    padding: 0.75rem;
+}
+
+/* Admin Dashboard Styles */
+.wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #4e73df 0%, #224abe 100%);
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    height: 100%;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+#sidebar .sidebar-header {
+    position: sticky;
+    top: 0;
+    background: inherit;
+    z-index: 1;
+    padding: 25px 20px;
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#sidebar .sidebar-header h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+#sidebar ul.components {
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 90px);
+}
+
+#sidebar ul.list-unstyled {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+#sidebar ul li {
+    position: relative;
+    margin: 4px 15px;
+    border-radius: 5px;
+    width: calc(100% - 30px);
+}
+
+#sidebar ul li a {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 5px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+#sidebar ul li a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    transform: translateX(5px);
+}
+
+#sidebar ul li.active a {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+#sidebar ul li a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.sidebar-divider {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 15px;
+    width: calc(100% - 30px);
+}
+
+.sidebar-heading {
+    padding: 0 15px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 1px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+/* Main Content Wrapper */
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+#content {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    min-height: 100vh;
+    transition: all 0.3s;
+    padding: 20px;
+}
+
+/* Sidebar Toggle Button */
+#sidebarCollapse {
+    background: transparent;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#sidebarCollapse:hover {
+    color: #4e73df;
+}
+
+#sidebarCollapse i {
+    font-size: 1.2rem;
+}
+
+/* Collapsed Sidebar */
+#sidebar.active {
+    margin-left: -250px;
+}
+
+#sidebar.active + #content {
+    margin-left: 0;
+}
+
+/* Top Navigation */
+.navbar {
+    padding: 15px 20px;
+    background: white !important;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: -250px;
+    }
+    
+    #sidebar.active {
+        margin-left: 0;
+    }
+    
+    #content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .navbar {
+        padding: 15px;
+    }
+    
+    #sidebarCollapse {
+        display: block;
+    }
+}
+
+/* Add this to your existing styles */
+.sidebar-divider {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 15px;
+}
+
+.sidebar-heading {
+    padding: 0 15px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 1px;
+    margin-top: 20px;
+}
+
+/* Dashboard Cards */
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid;
+}
+
+.border-left-primary { border-left-color: #4e73df; }
+.border-left-success { border-left-color: #1cc88a; }
+.border-left-info { border-left-color: #36b9cc; }
+.border-left-warning { border-left-color: #f6c23e; }
+
+/* Tables */
+.table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background-color: #4e73df;
+    color: white;
+    font-weight: 500;
+    border: none;
+}
+
+.table td {
+    vertical-align: middle;
+    border-color: #e3e6f0;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #d1d3e2;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* Alerts */
+.alert {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Icons */
+.fa-3x {
+    margin: 20px 0;
+    color: #4e73df;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5em 1em;
+    font-weight: 500;
+    border-radius: 30px;
+}
+
+.bg-pending { background-color: #f6c23e; }
+.bg-approved { background-color: #1cc88a; }
+.bg-rejected { background-color: #e74a3b; }
+
+nav {
+    background-color: #333;
+    padding: 1rem;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.button {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.button.delete {
+    background-color: #dc3545;
+}
+
+.flash-message {
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.actions {
+    margin-top: 20px;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.fa-3x {
+    margin: 20px 0;
+}
+
+.login-form {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.alert {
+    margin-bottom: 20px;
+}
+
+.card {
+    margin-bottom: 20px;
+}
+
+.border-left-primary {
+    border-left: 4px solid #4e73df;
+}
+
+.border-left-success {
+    border-left: 4px solid #1cc88a;
+}
+
+.border-left-info {
+    border-left: 4px solid #36b9cc;
+}
+
+.border-left-warning {
+    border-left: 4px solid #f6c23e;
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: -250px;
+    }
+    #sidebar.active {
+        margin-left: 0;
+    }
+}
+
+/* Account section styles */
+#sidebar .account-section {
+    margin-top: auto;
+    padding-bottom: 20px;
+}
+
+#sidebar ul li a.text-danger {
+    color: #dc3545 !important;
+}
+
+#sidebar ul li a.text-danger:hover {
+    background: rgba(220, 53, 69, 0.1);
+    color: #fff !important;
+}
+
+/* Profile Card Styles */
+.profile-item {
+    margin-bottom: 1.5rem;
+}
+
+.profile-item:last-child {
+    margin-bottom: 0;
+}
+
+.profile-item label {
+    display: block;
+    color: #4e73df;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+}
+
+.profile-item p {
+    margin: 0;
+    padding: 0.5rem;
+    background: #f8f9fc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Card Headers */
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.font-weight-bold {
+    font-weight: 700 !important;
+}
+
+.text-primary {
+    color: #4e73df !important;
+}
+
+/* Quick Action Cards */
+.card-body .text-center {
+    transition: transform 0.2s;
+}
+
+.card-body .text-center:hover {
+    transform: translateY(-5px);
+}
+
+/* Navbar Text */
+.navbar-text {
+    color: #5a5c69 !important;
+    font-weight: 500;
+}
+
+/* Make text darker and more readable */
+.text-dark {
+    color: #2d3748 !important;
+}
+
+/* Add some hover effects to quick action cards */
+.card.bg-primary:hover {
+    background-color: #2e59d9 !important;
+}
+
+.card.bg-success:hover {
+    background-color: #169b6b !important;
+}
+
+/* Statistics Card Styles */
+.stat-item label {
+    display: block;
+    color: #5a5c69;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.progress {
+    height: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background-color: #eaecf4;
+}
+
+.progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Quick Action Cards */
+.card.bg-primary, .card.bg-success, .card.bg-info, 
+.card.bg-warning, .card.bg-secondary, .card.bg-dark {
+    transition: all 0.3s ease;
+}
+
+.card.bg-primary:hover { transform: translateY(-5px); background-color: #2e59d9 !important; }
+.card.bg-success:hover { transform: translateY(-5px); background-color: #169b6b !important; }
+.card.bg-info:hover { transform: translateY(-5px); background-color: #2a96a5 !important; }
+.card.bg-warning:hover { transform: translateY(-5px); background-color: #dda20a !important; }
+.card.bg-secondary:hover { transform: translateY(-5px); background-color: #555555 !important; }
+.card.bg-dark:hover { transform: translateY(-5px); background-color: #1a1e21 !important; }
+
+/* Attendance Buttons */
+.btn-lg {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+/* Add these styles for the password modal */
+.modal-header {
+    background-color: #4e73df;
+    color: white;
+}
+
+.modal-header .btn-close {
+    color: white;
+}
+
+.modal-footer {
+    border-top: 1px solid #e3e6f0;
+    padding: 1rem;
+}
+
+.btn-primary {
+    background-color: #4e73df;
+    border-color: #4e73df;
+}
+
+.btn-primary:hover {
+    background-color: #2e59d9;
+    border-color: #2653d4;
+}
+
+/* Profile Picture Styles */
+.profile-pic-wrapper {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.profile-pic {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid #4e73df;
+}
+
+/* Add profile pic to navbar */
+.navbar .profile-pic-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 8px;
+    object-fit: cover;
+} 

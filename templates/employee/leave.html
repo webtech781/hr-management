@@ -1,0 +1,113 @@
+{% extends "employee/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">Leave Management</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#applyLeaveModal">
+            <i class="fas fa-plus"></i> Apply Leave
+        </button>
+    </div>
+
+    <!-- Leave History -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-history me-2"></i>Leave History
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Applied On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in leave_history %}
+                        <tr>
+                            <td>{{ leave.start_date }}</td>
+                            <td>{{ leave.end_date }}</td>
+                            <td>{{ leave.reason }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if leave.status == 'approved' 
+                                    else 'danger' if leave.status == 'rejected' 
+                                    else 'warning' }}">
+                                    {{ leave.status|title }}
+                                </span>
+                            </td>
+                            <td>{{ leave.created_at }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">No leave history found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Apply Leave Modal -->
+<div class="modal fade" id="applyLeaveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Apply Leave</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('submit_leave') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-control" name="start_date" 
+                               min="{{ today }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-control" name="end_date" 
+                               min="{{ today }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reason</label>
+                        <textarea class="form-control" name="reason" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Leave Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+// Add date validation
+document.querySelector('[name="end_date"]').addEventListener('change', function() {
+    const startDate = document.querySelector('[name="start_date"]').value;
+    if (this.value < startDate) {
+        alert('End date cannot be before start date');
+        this.value = startDate;
+    }
+});
+
+document.querySelector('[name="start_date"]').addEventListener('change', function() {
+    const endDate = document.querySelector('[name="end_date"]');
+    if (endDate.value && endDate.value < this.value) {
+        endDate.value = this.value;
+    }
+});
+</script>
+{% endblock %}
+
+{% endblock %} 

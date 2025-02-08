@@ -1,0 +1,208 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4">Admin Dashboard</h1>
+    
+    <div class="row">
+        <!-- Statistics Cards -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Employees</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_employees }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Pending Leave Requests</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pending_leaves }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Pending Tour Requests</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pending_tours }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-plane fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Pending Tasks</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pending_tasks }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Leave Requests</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Type</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for leave in recent_leaves %}
+                                <tr>
+                                    <td>{{ leave.employee_name }}</td>
+                                    <td>{{ leave.leave_type }}</td>
+                                    <td>{{ leave.start_date }}</td>
+                                    <td>{{ leave.end_date }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ leave.status_color }}">
+                                            {{ leave.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Today's Attendance</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attendance in todays_attendance %}
+                                <tr>
+                                    <td>{{ attendance.employee_name }}</td>
+                                    <td>{{ attendance.check_in }}</td>
+                                    <td>{{ attendance.check_out }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ attendance.status_color }}">
+                                            {{ attendance.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this section to your admin dashboard -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-file-export me-2"></i>Data Import/Export
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Export Section -->
+                <div class="col-md-6">
+                    <h5>Export Data</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('export_data', table_name='employees') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users me-2"></i>Export Employees
+                        </a>
+                        <a href="{{ url_for('export_data', table_name='attendance') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-clock me-2"></i>Export Attendance
+                        </a>
+                        <a href="{{ url_for('export_data', table_name='leaves') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar me-2"></i>Export Leave Requests
+                        </a>
+                        <a href="{{ url_for('export_data', table_name='tasks') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tasks me-2"></i>Export Tasks
+                        </a>
+                        <a href="{{ url_for('export_data', table_name='overtime') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-business-time me-2"></i>Export Overtime
+                        </a>
+                        <a href="{{ url_for('export_data', table_name='shifts') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-alt me-2"></i>Export Shifts
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Import Section -->
+                <div class="col-md-6">
+                    <h5>Import Data</h5>
+                    <div class="list-group">
+                        {% for table in ['employees', 'attendance', 'leaves', 'tasks', 'overtime', 'shifts'] %}
+                        <div class="list-group-item">
+                            <form action="{{ url_for('import_data', table_name=table) }}" method="POST" enctype="multipart/form-data" class="d-flex align-items-center">
+                                <i class="fas fa-upload me-2"></i>
+                                <input type="file" name="file" accept=".csv" class="form-control form-control-sm me-2" required>
+                                <button type="submit" class="btn btn-sm btn-primary">Import {{ table|title }}</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

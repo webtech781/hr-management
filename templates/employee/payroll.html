@@ -1,0 +1,104 @@
+{% extends "employee/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Payroll Information</h1>
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="fas fa-print"></i> Print Payslip
+        </button>
+    </div>
+
+    <!-- Salary Information Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Salary Details</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Basic Salary:</strong> ${{ "%.2f"|format(employee.salary) }}</p>
+                    <p><strong>Join Date:</strong> {{ employee.join_date|format_date }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Pay Period:</strong> {{ today|format_date }}</p>
+                    <p><strong>Pay Date:</strong> {{ today|format_date }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overtime Details -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Overtime Details</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Hours</th>
+                            <th>Rate (1.5x)</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ot in overtime %}
+                        <tr>
+                            <td>{{ ot.date|format_date }}</td>
+                            <td>{{ ot.hours }}</td>
+                            <td>${{ "%.2f"|format(employee.salary / 160 * 1.5) }}/hr</td>
+                            <td>${{ "%.2f"|format(ot.hours * (employee.salary / 160 * 1.5)) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No overtime records found for this month</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Earnings Summary -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Earnings Summary</h6>
+        </div>
+        <div class="card-body">
+            {% set overtime_hours = overtime|sum(attribute='hours') %}
+            {% set overtime_rate = employee.salary / 160 * 1.5 %}
+            {% set overtime_amount = overtime_hours * overtime_rate %}
+            {% set gross_salary = employee.salary + overtime_amount %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Basic Salary:</strong> ${{ "%.2f"|format(employee.salary) }}</p>
+                    <p><strong>Overtime Hours:</strong> {{ overtime_hours }} hours</p>
+                    <p><strong>Overtime Amount:</strong> ${{ "%.2f"|format(overtime_amount) }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Gross Salary:</strong> ${{ "%.2f"|format(gross_salary) }}</p>
+                    <p><strong>Tax (20%):</strong> ${{ "%.2f"|format(gross_salary * 0.20) }}</p>
+                    <p><strong class="text-primary">Net Salary:</strong> ${{ "%.2f"|format(gross_salary * 0.80) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .navbar, .sidebar, .btn-primary {
+        display: none !important;
+    }
+    .card {
+        break-inside: avoid;
+    }
+}
+</style>
+{% endblock %} 

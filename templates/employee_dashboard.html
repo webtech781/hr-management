@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - HR Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>HR Management</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <div class="sidebar-heading">Dashboard</div>
+                <li class="active">
+                    <a href="{{ url_for('employee_dashboard') }}">
+                        <i class="fas fa-fw fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+
+                <div class="sidebar-divider"></div>
+                <div class="sidebar-heading">Requests</div>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-fw fa-calendar"></i>
+                        <span>Leave Requests</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-fw fa-plane"></i>
+                        <span>Tour Requests</span>
+                    </a>
+                </li>
+
+                <div class="account-section">
+                    <div class="sidebar-divider"></div>
+                    <div class="sidebar-heading">Account</div>
+                    <li>
+                        <a href="{{ url_for('logout') }}" class="text-danger">
+                            <i class="fas fa-fw fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </div>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <span class="navbar-text ms-auto">
+                        <i class="fas fa-user-circle me-2"></i>
+                        Welcome, {{ session.get('username') }}
+                    </span>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid mt-4">
+                <div class="row">
+                    <!-- Profile Card -->
+                    <div class="col-xl-4 col-lg-5">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-user-circle me-2"></i>Profile Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="profile-item">
+                                    <label><i class="fas fa-id-badge me-2"></i>Employee ID</label>
+                                    <p class="text-dark">EMP{{ employee['id'] }}</p>
+                                </div>
+                                <div class="profile-item">
+                                    <label><i class="fas fa-user me-2"></i>Name</label>
+                                    <p class="text-dark">{{ employee['first_name'] }} {{ employee['last_name'] }}</p>
+                                </div>
+                                <div class="profile-item">
+                                    <label><i class="fas fa-envelope me-2"></i>Email</label>
+                                    <p class="text-dark">{{ employee['email'] }}</p>
+                                </div>
+                                <div class="profile-item">
+                                    <label><i class="fas fa-briefcase me-2"></i>Position</label>
+                                    <p class="text-dark">{{ employee['position'] or 'Not Assigned' }}</p>
+                                </div>
+                                <div class="profile-item">
+                                    <label><i class="fas fa-building me-2"></i>Department</label>
+                                    <p class="text-dark">{{ employee['department'] or 'Not Assigned' }}</p>
+                                </div>
+                                <div class="profile-item">
+                                    <label><i class="fas fa-clock me-2"></i>Work Duration</label>
+                                    <p class="text-dark">{{ employee['duration'] or '8' }} Hours Shift</p>
+                                </div>
+                                <div class="profile-item">
+                                    <label><i class="fas fa-rupee-sign me-2"></i>Monthly Salary</label>
+                                    <p class="text-dark">₹{{ "{:,.2f}".format(employee['salary']|float) if employee['salary'] else '0.00' }}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Phone Number:</label>
+                                    <p class="mb-0">{{ employee.phone }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="col-xl-8 col-lg-7">
+                        <div class="row">
+                            <!-- Attendance Card -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card shadow h-100">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Today's Attendance</h6>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-clock fa-3x mb-3 text-primary"></i>
+                                        <h4 class="mb-3">Mark Attendance</h4>
+                                        <form action="{{ url_for('mark_attendance') }}" method="POST" class="d-inline">
+                                            <input type="hidden" name="action" value="check_in">
+                                            <button type="submit" class="btn btn-success btn-lg mb-2 w-100">
+                                                <i class="fas fa-sign-in-alt me-2"></i>Check In
+                                            </button>
+                                        </form>
+                                        <form action="{{ url_for('mark_attendance') }}" method="POST" class="d-inline">
+                                            <input type="hidden" name="action" value="check_out">
+                                            <button type="submit" class="btn btn-danger btn-lg w-100">
+                                                <i class="fas fa-sign-out-alt me-2"></i>Check Out
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Statistics Card -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card shadow h-100">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Monthly Statistics</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="stat-item mb-3">
+                                            <label>Present Days</label>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" style="width: 80%">20/25</div>
+                                            </div>
+                                        </div>
+                                        <div class="stat-item mb-3">
+                                            <label>Leave Balance</label>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-info" style="width: 60%">6/10</div>
+                                            </div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <label>Pending Tasks</label>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-warning" style="width: 40%">2/5</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions Grid -->
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <a href="{{ url_for('apply_leave') }}" class="card bg-primary text-white shadow h-100 py-2 d-block text-decoration-none">
+                                    <div class="card-body">
+                                        <div class="text-center">
+                                            <i class="fas fa-calendar-plus fa-2x mb-3"></i>
+                                            <h6>Apply Leave</h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <a href="{{ url_for('view_tasks') }}" class="card bg-info text-white shadow h-100 py-2 d-block text-decoration-none">
+                                    <div class="card-body">
+                                        <div class="text-center">
+                                            <i class="fas fa-tasks fa-2x mb-3"></i>
+                                            <h6>View Tasks</h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <a href="{{ url_for('view_payroll') }}" class="card bg-warning text-white shadow h-100 py-2 d-block text-decoration-none">
+                                    <div class="card-body">
+                                        <div class="text-center">
+                                            <i class="fas fa-money-check-alt fa-2x mb-3"></i>
+                                            <h6>Payroll</h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <a href="{{ url_for('attendance_history') }}" class="card bg-dark text-white shadow h-100 py-2 d-block text-decoration-none">
+                                    <div class="card-body">
+                                        <div class="text-center">
+                                            <i class="fas fa-history fa-2x mb-3"></i>
+                                            <h6>Attendance History</h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('sidebarCollapse').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    </script>
+</body>
+</html> 

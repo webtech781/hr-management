@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Login History</h1>
+    </div>
+
+    <!-- Login History Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Recent Login Attempts</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>IP Address</th>
+                            <th>Browser</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in history %}
+                        <tr>
+                            <td>{{ entry.login_time }}</td>
+                            <td>
+                                {% if entry.profile_pic %}
+                                    <img src="{{ url_for('static', filename='profile_pics/' + entry.profile_pic) }}" 
+                                         alt="Profile" 
+                                         class="rounded-circle me-2"
+                                         style="width: 32px; height: 32px; object-fit: cover;">
+                                {% else %}
+                                    <i class="fas fa-user-circle me-2"></i>
+                                {% endif %}
+                                {{ entry.first_name }} {{ entry.last_name }}
+                            </td>
+                            <td>
+                                <span class="badge {% if entry.role == 'admin' %}bg-danger{% else %}bg-primary{% endif %}">
+                                    {{ entry.role|title }}
+                                </span>
+                            </td>
+                            <td>{{ entry.department or '-' }}</td>
+                            <td>
+                                <span class="badge {% if entry.status == 'success' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ entry.status|title }}
+                                </span>
+                            </td>
+                            <td>{{ entry.ip_address }}</td>
+                            <td>{{ entry.user_agent }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
