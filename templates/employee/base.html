@@ -16,58 +16,86 @@
                 <h3>HR Management</h3>
             </div>
 
-            <ul class="list-unstyled components">
-                <div class="sidebar-heading">Dashboard</div>
-                <li class="{% if request.endpoint == 'employee_dashboard' %}active{% endif %}">
-                    <a href="{{ url_for('employee_dashboard') }}">
-                        <i class="fas fa-fw fa-home"></i>
-                        <span>Home</span>
-                    </a>
-                </li>
+            <div class="sidebar-content">
+                <ul class="list-unstyled components">
+                    <!-- Main Section -->
+                    <div class="sidebar-heading">Main</div>
+                    <li class="{% if request.endpoint == 'employee_dashboard' %}active{% endif %}">
+                        <a href="{{ url_for('employee_dashboard') }}">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
 
-                <div class="sidebar-divider"></div>
-                <div class="sidebar-heading">Features</div>
-                <li class="{% if request.endpoint == 'apply_leave' %}active{% endif %}">
-                    <a href="{{ url_for('apply_leave') }}">
-                        <i class="fas fa-fw fa-calendar"></i>
-                        <span>Leave Management</span>
-                    </a>
-                </li>
-                <li class="{% if request.endpoint == 'view_tasks' %}active{% endif %}">
-                    <a href="{{ url_for('view_tasks') }}">
-                        <i class="fas fa-fw fa-tasks"></i>
-                        <span>Tasks</span>
-                    </a>
-                </li>
-                <li class="{% if request.endpoint == 'attendance_history' %}active{% endif %}">
-                    <a href="{{ url_for('attendance_history') }}">
-                        <i class="fas fa-fw fa-clock"></i>
-                        <span>Attendance</span>
-                    </a>
-                </li>
-                <li class="{% if request.endpoint == 'view_payroll' %}active{% endif %}">
-                    <a href="{{ url_for('view_payroll') }}">
-                        <i class="fas fa-fw fa-money-check-alt"></i>
-                        <span>Payroll</span>
-                    </a>
-                </li>
-
-                <div class="account-section">
                     <div class="sidebar-divider"></div>
+                    <!-- Attendance Section -->
+                    <div class="sidebar-heading">Attendance</div>
+                    <li class="{% if request.endpoint == 'attendance_history' %}active{% endif %}">
+                        <a href="{{ url_for('attendance_history') }}">
+                            <i class="fas fa-fw fa-calendar-check"></i>
+                            <span>Attendance</span>
+                        </a>
+                    </li>
+
+                    <div class="sidebar-divider"></div>
+                    <!-- Schedule Section -->
+                    <div class="sidebar-heading">Schedule</div>
+                    <li class="{% if request.endpoint == 'view_shifts' %}active{% endif %}">
+                        <a href="{{ url_for('view_shifts') }}">
+                            <i class="fas fa-fw fa-calendar-alt"></i>
+                            <span>My Shifts</span>
+                        </a>
+                    </li>
+                    <li class="{% if request.endpoint == 'view_tasks' %}active{% endif %}">
+                        <a href="{{ url_for('view_tasks') }}">
+                            <i class="fas fa-fw fa-tasks"></i>
+                            <span>My Tasks</span>
+                        </a>
+                    </li>
+
+                    <div class="sidebar-divider"></div>
+                    <!-- Requests Section -->
+                    <div class="sidebar-heading">Requests</div>
+                    <li class="{% if request.endpoint == 'apply_leave' %}active{% endif %}">
+                        <a href="{{ url_for('apply_leave') }}">
+                            <i class="fas fa-fw fa-calendar-minus"></i>
+                            <span>Leave Request</span>
+                        </a>
+                    </li>
+
+                    <div class="sidebar-divider"></div>
+                    <!-- Finance Section -->
+                    <div class="sidebar-heading">Finance</div>
+                    <li class="{% if request.endpoint == 'view_payroll' %}active{% endif %}">
+                        <a href="{{ url_for('view_payroll') }}">
+                            <i class="fas fa-fw fa-money-bill-wave"></i>
+                            <span>My Payroll</span>
+                        </a>
+                    </li>
+
+                    <div class="sidebar-divider"></div>
+                    <!-- Profile Section -->
                     <div class="sidebar-heading">Account</div>
+                    <li class="{% if request.endpoint == 'view_profile' %}active{% endif %}">
+                        <a href="{{ url_for('view_profile') }}">
+                            <i class="fas fa-fw fa-user"></i>
+                            <span>My Profile</span>
+                        </a>
+                    </li>
                     <li>
                         <a href="{{ url_for('logout') }}" class="text-danger">
                             <i class="fas fa-fw fa-sign-out-alt"></i>
                             <span>Logout</span>
                         </a>
                     </li>
-                </div>
-            </ul>
+                </ul>
+                <!-- Add padding div after the list -->
+                <div style="padding-bottom: 30px;"></div>
+            </div>
         </nav>
 
         <!-- Page Content -->
         <div id="content">
-            <!-- Navbar -->
             <nav class="navbar navbar-expand-lg">
                 <div class="container-fluid">
                     <button type="button" id="sidebarCollapse" class="btn">
@@ -80,21 +108,24 @@
                 </div>
             </nav>
 
-            <!-- Flash Messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="container-fluid mt-3">
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
+            <!-- Add consistent padding for all pages -->
+            <div class="p-4">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="container-fluid">
+                            {% for message in messages %}
+                                <div class="alert alert-info alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
 
-            {% block content %}{% endblock %}
+                {% block content %}{% endblock %}
+            </div>
         </div>
     </div>
 
