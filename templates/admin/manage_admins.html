@@ -1,0 +1,187 @@
+{% extends 'admin/base.html' %}
+{% block title %}Manage Administrators{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Manage Administrators</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Manage Administrators</li>
+    </ol>
+
+    <!-- Add Admin Button -->
+    <div class="mb-4">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAdminModal">
+            <i class="fas fa-user-plus"></i> Add New Administrator
+        </button>
+    </div>
+
+    <!-- Admin List -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-users-cog me-1"></i>
+            Administrator List
+        </div>
+        <div class="card-body">
+            <table id="adminTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Position</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for admin in admins %}
+                    <tr>
+                        <td>{{ admin.first_name }} {{ admin.last_name }}</td>
+                        <td>{{ admin.email }}</td>
+                        <td>{{ admin.position }}</td>
+                        <td>{{ admin.last_login|default('Never', true) }}</td>
+                        <td>
+                            <span class="badge {% if admin.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ 'Active' if admin.is_active else 'Inactive' }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="editAdmin({{ admin.id }})"
+                                    data-bs-toggle="modal" data-bs-target="#editAdminModal">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-warning btn-sm" onclick="resetPassword({{ admin.id }})"
+                                    data-bs-toggle="modal" data-bs-target="#resetPasswordModal">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="toggleAdminStatus({{ admin.id }})">
+                                <i class="fas fa-power-off"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Admin Modal -->
+<div class="modal fade" id="addAdminModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Administrator</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_admin') }}" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" name="first_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" name="last_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Position</label>
+                        <input type="text" class="form-control" name="position" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Administrator</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Admin Modal -->
+<div class="modal fade" id="editAdminModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Administrator</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('edit_admin') }}" method="POST">
+                <input type="hidden" name="admin_id" id="editAdminId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" name="first_name" id="editFirstName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" name="last_name" id="editLastName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" id="editEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Position</label>
+                        <input type="text" class="form-control" name="position" id="editPosition" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function editAdmin(adminId) {
+    // Fetch admin details and populate the edit modal
+    fetch(`/admin/get-admin/${adminId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('editAdminId').value = data.id;
+            document.getElementById('editFirstName').value = data.first_name;
+            document.getElementById('editLastName').value = data.last_name;
+            document.getElementById('editEmail').value = data.email;
+            document.getElementById('editPosition').value = data.position;
+        });
+}
+
+function toggleAdminStatus(adminId) {
+    if (confirm('Are you sure you want to change this administrator\'s status?')) {
+        fetch(`/admin/toggle-status/${adminId}`, {
+            method: 'POST',
+        }).then(() => window.location.reload());
+    }
+}
+
+function resetPassword(adminId) {
+    if (confirm('Are you sure you want to reset this administrator\'s password?')) {
+        fetch(`/admin/reset-password/${adminId}`, {
+            method: 'POST',
+        }).then(() => alert('Password has been reset'));
+    }
+}
+
+$(document).ready(function() {
+    $('#adminTable').DataTable({
+        order: [[0, 'asc']],
+        responsive: true
+    });
+});
+</script>
+{% endblock %} 

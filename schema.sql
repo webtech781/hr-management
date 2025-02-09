@@ -25,6 +25,7 @@ CREATE TABLE users (
     duration INTEGER,
     join_date TEXT,
     profile_pic TEXT,
+    status TEXT DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

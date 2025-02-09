@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, g
+from flask import Flask, render_template, request, redirect, url_for, flash, session, g, jsonify
 from database import init_app, get_db
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
@@ -1615,4 +1615,169 @@ def manage_attendance():
         'admin/attendance.html',
         attendance_records=processed_records,
         employees=employees
-    ) 
+    )
+
+@app.route('/admin/manage-admins')
+@admin_required
+def manage_admins():
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Get all admin users with their last login
+    cursor.execute('''
+        SELECT u.id, u.first_name, u.last_name, u.email, 
+               u.position, u.created_at, 
+               MAX(lh.login_time) as last_login,
+               COALESCE(u.status, 'active') as status,
+               CASE WHEN COALESCE(u.status, 'active') = 'active' THEN 1 ELSE 0 END as is_active
+        FROM users u
+        LEFT JOIN login_history lh ON u.id = lh.user_id
+        WHERE u.role = 'admin'
+        GROUP BY u.id
+        ORDER BY u.first_name
+    ''')
+    
+    admins = cursor.fetchall()
+    return render_template('admin/manage_admins.html', admins=admins)
+
+@app.route('/admin/get-admin/<int:admin_id>')
+@admin_required
+def get_admin(admin_id):
+    db = get_db()
+    cursor = db.cursor()
+    
+    cursor.execute('''
+        SELECT id, first_name, last_name, email, position
+        FROM users
+        WHERE id = ? AND role = 'admin'
+    ''', (admin_id,))
+    
+    admin = cursor.fetchone()
+    if admin:
+        return jsonify(dict(admin))
+    return jsonify({'error': 'Admin not found'}), 404
+
+@app.route('/admin/add-admin', methods=['POST'])
+@admin_required
+def add_admin():
+    if request.method == 'POST':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        email = request.form['email']
+        position = request.form['position']
+        password = request.form['password']
+        
+        db = get_db()
+        cursor = db.cursor()
+        
+        try:
+            # Hash the password
+            password_hash = hashlib.md5(password.encode()).hexdigest()
+            
+            # Insert new admin
+            cursor.execute('''
+                INSERT INTO users (
+                    first_name, last_name, email, password_hash, 
+                    role, position, status
+                ) VALUES (?, ?, ?, ?, 'admin', ?, 'active')
+            ''', (first_name, last_name, email, password_hash, position))
+            
+            admin_id = cursor.lastrowid
+            
+            # Log the action
+            log_action(
+                'Admin Created',
+                f'New administrator account created: {email}',
+                'info',
+                session.get('user_id')
+            )
+            
+            db.commit()
+            flash('Administrator added successfully', 'success')
+            
+        except sqlite3.IntegrityError:
+            flash('Email already exists', 'error')
+        except Exception as e:
+            flash(f'Error adding administrator: {str(e)}', 'error')
+            
+    return redirect(url_for('manage_admins'))
+
+@app.route('/admin/edit-admin', methods=['POST'])
+@admin_required
+def edit_admin():
+    if request.method == 'POST':
+        admin_id = request.form['admin_id']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        email = request.form['email']
+        position = request.form['position']
+        
+        db = get_db()
+        cursor = db.cursor()
+        
+        try:
+            # Update admin details
+            cursor.execute('''
+                UPDATE users 
+                SET first_name = ?, last_name = ?, 
+                    email = ?, position = ?
+                WHERE id = ? AND role = 'admin'
+            ''', (first_name, last_name, email, position, admin_id))
+            
+            # Log the action
+            log_action(
+                'Admin Updated',
+                f'Administrator details updated: {email}',
+                'info',
+                session.get('user_id')
+            )
+            
+            db.commit()
+            flash('Administrator updated successfully', 'success')
+            
+        except sqlite3.IntegrityError:
+            flash('Email already exists', 'error')
+        except Exception as e:
+            flash(f'Error updating administrator: {str(e)}', 'error')
+            
+    return redirect(url_for('manage_admins'))
+
+@app.route('/admin/toggle-status/<int:admin_id>', methods=['POST'])
+@admin_required
+def toggle_admin_status(admin_id):
+    db = get_db()
+    cursor = db.cursor()
+    
+    try:
+        # Get current status
+        cursor.execute('''
+            SELECT COALESCE(status, 'active') as status 
+            FROM users 
+            WHERE id = ? AND role = 'admin'
+        ''', (admin_id,))
+        current_status = cursor.fetchone()['status']
+        
+        # Toggle status
+        new_status = 'inactive' if current_status == 'active' else 'active'
+        
+        cursor.execute('''
+            UPDATE users 
+            SET status = ?
+            WHERE id = ? AND role = 'admin'
+        ''', (new_status, admin_id))
+        
+        # Log the action
+        log_action(
+            'Admin Status Changed',
+            f'Administrator (ID: {admin_id}) status changed to {new_status}',
+            'warning',
+            session.get('user_id')
+        )
+        
+        db.commit()
+        flash(f'Administrator status updated to {new_status}', 'success')
+        
+    except Exception as e:
+        flash(f'Error updating administrator status: {str(e)}', 'error')
+        
+    return redirect(url_for('manage_admins')) 
