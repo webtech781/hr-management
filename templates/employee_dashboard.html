@@ -11,7 +11,7 @@
 <body>
     <div class="wrapper">
         <!-- Sidebar -->
-        {% comment %} <nav id="sidebar">
+        <nav id="sidebar">
             <div class="sidebar-header">
                 <h3>HR Management</h3>
             </div>
@@ -51,61 +51,7 @@
                     </li>
                 </div>
             </ul>
-        </nav> {% endcomment %}
-        <nav id="sidebar">
-            <div class="sidebar-header">
-                <h3>HR Management</h3>
-            </div>
-
-            <ul class="list-unstyled components">
-                <div class="sidebar-heading">Dashboard</div>
-                <li class="{% if request.endpoint == 'employee_dashboard' %}active{% endif %}">
-                    <a href="{{ url_for('employee_dashboard') }}">
-                        <i class="fas fa-fw fa-home"></i>
-                        <span>Home</span>
-                    </a>
-                </li>
-
-                <div class="sidebar-divider"></div>
-                <div class="sidebar-heading">Features</div>
-                <li class="{% if request.endpoint == 'apply_leave' %}active{% endif %}">
-                    <a href="{{ url_for('apply_leave') }}">
-                        <i class="fas fa-fw fa-calendar"></i>
-                        <span>Leave Management</span>
-                    </a>
-                </li>
-                <li class="{% if request.endpoint == 'view_tasks' %}active{% endif %}">
-                    <a href="{{ url_for('view_tasks') }}">
-                        <i class="fas fa-fw fa-tasks"></i>
-                        <span>Tasks</span>
-                    </a>
-                </li>
-                <li class="{% if request.endpoint == 'attendance_history' %}active{% endif %}">
-                    <a href="{{ url_for('attendance_history') }}">
-                        <i class="fas fa-fw fa-clock"></i>
-                        <span>Attendance</span>
-                    </a>
-                </li>
-                <li class="{% if request.endpoint == 'view_payroll' %}active{% endif %}">
-                    <a href="{{ url_for('view_payroll') }}">
-                        <i class="fas fa-fw fa-money-check-alt"></i>
-                        <span>Payroll</span>
-                    </a>
-                </li>
-
-                <div class="account-section">
-                    <div class="sidebar-divider"></div>
-                    <div class="sidebar-heading">Account</div>
-                    <li>
-                        <a href="{{ url_for('logout') }}" class="text-danger">
-                            <i class="fas fa-fw fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </a>
-                    </li>
-                </div>
-            </ul>
         </nav>
-
 
         <!-- Page Content -->
         <div id="content">
