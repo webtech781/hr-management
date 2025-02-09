@@ -84,6 +84,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Project Structure
 
 hr-management/
+
 ├── app.py # Main application file
 
 ├── database.py # Database configuration
