@@ -32,7 +32,7 @@
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Average Salary
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">${{ "%.2f"|format(stats.avg_salary or 0) }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ "%.2f"|format(stats.avg_salary or 0) }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
@@ -50,7 +50,7 @@
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                 Minimum Salary
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">${{ "%.2f"|format(stats.min_salary or 0) }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ "%.2f"|format(stats.min_salary or 0) }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
@@ -68,7 +68,7 @@
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 Maximum Salary
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">${{ "%.2f"|format(stats.max_salary or 0) }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ "%.2f"|format(stats.max_salary or 0) }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-arrow-up fa-2x text-gray-300"></i>
@@ -119,10 +119,10 @@
                             </td>
                             <td>{{ emp.department }}</td>
                             <td>{{ emp.position }}</td>
-                            <td>${{ "%.2f"|format(emp.salary or 0) }}</td>
+                            <td>₹{{ "%.2f"|format(emp.salary or 0) }}</td>
                             <td>{{ emp.days_worked }}</td>
                             <td>{{ emp.overtime_hours }}</td>
-                            <td>${{ "%.2f"|format((emp.salary or 0) + (emp.overtime_hours or 0) * 50) }}</td>
+                            <td>₹{{ "%.2f"|format((emp.salary or 0) + (emp.overtime_hours or 0) * 50) }}</td>
                             <td>
                                 <a href="{{ url_for('view_profile', user_id=emp.id) }}" 
                                    class="btn btn-sm btn-info">

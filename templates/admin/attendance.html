@@ -1,0 +1,129 @@
+{% extends 'admin/base.html' %}
+{% block title %}Attendance Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Attendance Management</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Attendance</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-calendar-check me-1"></i>
+                Attendance Records
+            </div>
+            <div>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#filterModal">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="attendanceTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Status</th>
+                        <th>Total Hours</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records %}
+                    <tr>
+                        <td>{{ record.employee_id }}</td>
+                        <td>{{ record.employee_name }}</td>
+                        <td>{{ record.attendance_date }}</td>
+                        <td>{{ record.clock_in_time or 'Not Checked In' }}</td>
+                        <td>{{ record.clock_out_time or 'Not Checked Out' }}</td>
+                        <td>
+                            <span class="badge {% if record.status == 'present' %}bg-success{% elif record.status == 'absent' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ record.status|title }}
+                            </span>
+                        </td>
+                        <td>{{ record.total_hours }}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="editAttendance('{{ record.id }}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Filter Attendance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="filterForm">
+                    <div class="mb-3">
+                        <label for="dateRange" class="form-label">Date Range</label>
+                        <input type="date" class="form-control" id="startDate" name="startDate">
+                        <input type="date" class="form-control mt-2" id="endDate" name="endDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="employeeSelect" class="form-label">Employee</label>
+                        <select class="form-select" id="employeeSelect" name="employee">
+                            <option value="">All Employees</option>
+                            {% for employee in employees %}
+                            <option value="{{ employee.id }}">{{ employee.first_name }} {{ employee.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="statusSelect" class="form-label">Status</label>
+                        <select class="form-select" id="statusSelect" name="status">
+                            <option value="">All Status</option>
+                            <option value="present">Present</option>
+                            <option value="absent">Absent</option>
+                            <option value="late">Late</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="applyFilter()">Apply Filter</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#attendanceTable').DataTable({
+            order: [[2, 'desc']], // Sort by date column by default
+            responsive: true
+        });
+    });
+
+    function editAttendance(recordId) {
+        // Add your edit attendance logic here
+    }
+
+    function applyFilter() {
+        const formData = new FormData(document.getElementById('filterForm'));
+        // Add your filter logic here
+        $('#filterModal').modal('hide');
+    }
+</script>
+{% endblock %} 

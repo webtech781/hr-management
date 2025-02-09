@@ -1497,7 +1497,7 @@ def update_employee_password():
         # Update the password
         cursor.execute('''
             UPDATE users 
-            SET password_hash = ? 
+            SET password_hash = ?
             WHERE id = ?
         ''', (password_hash, user_id))
         
@@ -1557,4 +1557,62 @@ def view_payrolls():
     
     stats = cursor.fetchone()
     
-    return render_template('admin/payrolls.html', employees=employees, stats=stats) 
+    return render_template('admin/payrolls.html', employees=employees, stats=stats)
+
+@app.route('/admin/attendance')
+@login_required
+@admin_required
+def manage_attendance():
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Query to get attendance records with employee names
+    cursor.execute("""
+        SELECT a.*, 
+               u.first_name, 
+               u.last_name,
+               u.id as employee_id,
+               strftime('%H:%M', a.check_in) as clock_in_time,
+               strftime('%H:%M', a.check_out) as clock_out_time,
+               date(a.date) as attendance_date
+        FROM attendance a 
+        JOIN users u ON a.user_id = u.id 
+        ORDER BY a.date DESC
+    """)
+    attendance_records = cursor.fetchall()
+    
+    # Get all employees for the filter dropdown
+    cursor.execute("""
+        SELECT id, first_name, last_name 
+        FROM users 
+        WHERE role = 'employee'
+        ORDER BY first_name
+    """)
+    employees = cursor.fetchall()
+    
+    # Calculate total hours for each record
+    processed_records = []
+    for record in attendance_records:
+        record_dict = dict(record)
+        if record['check_in'] and record['check_out']:
+            try:
+                check_in = datetime.strptime(record['check_in'], '%Y-%m-%d %H:%M:%S')
+                check_out = datetime.strptime(record['check_out'], '%Y-%m-%d %H:%M:%S')
+                total_hours = (check_out - check_in).total_seconds() / 3600
+                record_dict['total_hours'] = f"{total_hours:.2f}"
+            except Exception as e:
+                record_dict['total_hours'] = "N/A"
+                print(f"Error calculating hours: {e}")
+        else:
+            record_dict['total_hours'] = "N/A"
+        
+        # Format employee name
+        record_dict['employee_name'] = f"{record['first_name']} {record['last_name']}"
+        
+        processed_records.append(record_dict)
+    
+    return render_template(
+        'admin/attendance.html',
+        attendance_records=processed_records,
+        employees=employees
+    ) 

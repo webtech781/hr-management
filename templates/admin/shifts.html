@@ -162,10 +162,10 @@ function generateCalendar(year, month) {
         
         const dateStr = date.toISOString().split('T')[0];
         cell.innerHTML = `
-            <div class="calendar-date">${date.getDate()}</div>
-            <div id="shifts-${dateStr}"></div>
-            ${date.getMonth() === month ? `
-                <button class="btn btn-sm btn-link p-0" onclick="addShift('${dateStr}')">
+            <div class="calendar-date">₹{date.getDate()}</div>
+            <div id="shifts-₹{dateStr}"></div>
+            ₹{date.getMonth() === month ? `
+                <button class="btn btn-sm btn-link p-0" onclick="addShift('₹{dateStr}')">
                     <i class="fas fa-plus"></i>
                 </button>
             ` : ''}
@@ -186,12 +186,12 @@ function generateCalendar(year, month) {
 function populateShifts() {
     const shifts = {{ shifts|tojson|safe }};
     shifts.forEach(shift => {
-        const container = document.getElementById(`shifts-${shift.date}`);
+        const container = document.getElementById(`shifts-₹{shift.date}`);
         if (container) {
             container.innerHTML += `
-                <div class="shift-entry shift-${shift.shift_type}" title="Location: ${shift.location}">
-                    ${shift.first_name} ${shift.last_name}
-                    (${getShiftTime(shift.shift_type)})
+                <div class="shift-entry shift-₹{shift.shift_type}" title="Location: ₹{shift.location}">
+                    ₹{shift.first_name} ₹{shift.last_name}
+                    (₹{getShiftTime(shift.shift_type)})
                 </div>
             `;
         }

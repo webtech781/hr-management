@@ -16,110 +16,121 @@
                 <h3>HR Management</h3>
             </div>
 
-            <ul class="list-unstyled components">
-                <!-- Main Section -->
-                <div class="sidebar-heading">Main</div>
-                <li class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
-                    <a href="{{ url_for('admin_dashboard') }}">
-                        <i class="fas fa-fw fa-tachometer-alt"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
-
-                <div class="sidebar-divider"></div>
-                <!-- Employee Management Section -->
-                <div class="sidebar-heading">Employee Management</div>
-                <li class="{% if request.endpoint == 'view_employees' %}active{% endif %}">
-                    <a href="{{ url_for('view_employees') }}">
-                        <i class="fas fa-fw fa-users"></i>
-                        <span>View Employees</span>
-                    </a>
-                </li>
-                <li class="{% if request.endpoint == 'add_employee' %}active{% endif %}">
-                    <a href="{{ url_for('add_employee') }}">
-                        <i class="fas fa-fw fa-user-plus"></i>
-                        <span>Add Employee</span>
-                    </a>
-                </li>
-
-                <div class="sidebar-divider"></div>
-                <div class="sidebar-heading">Shift Management</div>
-                <li class="{% if request.endpoint == 'manage_shifts' %}active{% endif %}">
-                    <a href="{{ url_for('manage_shifts') }}">
-                        <i class="fas fa-fw fa-calendar-alt"></i>
-                        <span>Shift Schedule</span>
-                    </a>
-                </li>
-                <li class="{% if request.endpoint == 'manage_overtime' %}active{% endif %}">
-                    <a href="{{ url_for('manage_overtime') }}">
-                        <i class="fas fa-fw fa-clock"></i>
-                        <span>Overtime</span>
-                    </a>
-                </li>
-
-                <div class="sidebar-divider"></div>
-                <!-- Requests Section -->
-                <div class="sidebar-heading">Requests</div>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('manage_leaves') }}">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Leave Requests</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-fw fa-plane"></i>
-                        <span>Tour Requests</span>
-                    </a>
-                </li>
-
-                <!-- Account Section - Will stick to bottom -->
-                <div class="account-section">
-                    <div class="sidebar-divider"></div>
-                    <div class="sidebar-heading">Account</div>
-                    <li>
-                        <a href="{{ url_for('logout') }}" class="text-danger">
-                            <i class="fas fa-fw fa-sign-out-alt"></i>
-                            <span>Logout</span>
+            <!-- Add this wrapper div -->
+            <div class="sidebar-content">
+                <ul class="list-unstyled components">
+                    <!-- Main Section -->
+                    <div class="sidebar-heading">Main</div>
+                    <li class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                        <a href="{{ url_for('admin_dashboard') }}">
+                            <i class="fas fa-fw fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
                         </a>
                     </li>
-                </div>
 
-                <!-- Add these items to the sidebar navigation -->
-                <div class="sidebar-heading">Security</div>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('view_credentials') }}">
-                        <i class="fas fa-key"></i>
-                        <span>User Credentials</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('view_login_history') }}">
-                        <i class="fas fa-history"></i>
-                        <span>Login History</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('view_logs') }}">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>System Logs</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('view_employees_data') }}">
-                        <i class="fas fa-database"></i>
-                        <span>Employee Data</span>
-                    </a>
-                </li>
-                <div class="sidebar-divider"></div>
-                <div class="sidebar-heading">Finance</div>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('view_payrolls') }}">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <span>Payroll Management</span>
-                    </a>
-                </li>
-            </ul>
+                    <div class="sidebar-divider"></div>
+                    <!-- Employee Management Section -->
+                    <div class="sidebar-heading">Employee Management</div>
+                    <li class="{% if request.endpoint == 'view_employees' %}active{% endif %}">
+                        <a href="{{ url_for('view_employees') }}">
+                            <i class="fas fa-fw fa-users"></i>
+                            <span>View Employees</span>
+                        </a>
+                    </li>
+                    <li class="{% if request.endpoint == 'add_employee' %}active{% endif %}">
+                        <a href="{{ url_for('add_employee') }}">
+                            <i class="fas fa-fw fa-user-plus"></i>
+                            <span>Add Employee</span>
+                        </a>
+                    </li>
+
+                    <div class="sidebar-divider"></div>
+                    <div class="sidebar-heading">Shift Management</div>
+                    <li class="{% if request.endpoint == 'manage_shifts' %}active{% endif %}">
+                        <a href="{{ url_for('manage_shifts') }}">
+                            <i class="fas fa-fw fa-calendar-alt"></i>
+                            <span>Shift Schedule</span>
+                        </a>
+                    </li>
+                    <li class="{% if request.endpoint == 'manage_attendance' %}active{% endif %}">
+                        <a href="{{ url_for('manage_attendance') }}">
+                            <i class="fas fa-fw fa-user-clock"></i>
+                            <span>Attendance</span>
+                        </a>
+                    </li>
+                    <li class="{% if request.endpoint == 'manage_overtime' %}active{% endif %}">
+                        <a href="{{ url_for('manage_overtime') }}">
+                            <i class="fas fa-fw fa-clock"></i>
+                            <span>Overtime</span>
+                        </a>
+                    </li>
+
+                    <div class="sidebar-divider"></div>
+                    <!-- Requests Section -->
+                    <div class="sidebar-heading">Requests</div>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('manage_leaves') }}">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Leave Requests</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-fw fa-plane"></i>
+                            <span>Tour Requests</span>
+                        </a>
+                    </li>
+
+                    <!-- Account Section - Will stick to bottom -->
+                    <div class="account-section">
+                        <div class="sidebar-divider"></div>
+                        <div class="sidebar-heading">Account</div>
+                        <li>
+                            <a href="{{ url_for('logout') }}" class="text-danger">
+                                <i class="fas fa-fw fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </li>
+                    </div>
+
+                    <!-- Add these items to the sidebar navigation -->
+                    <div class="sidebar-heading">Security</div>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_credentials') }}">
+                            <i class="fas fa-key"></i>
+                            <span>User Credentials</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_login_history') }}">
+                            <i class="fas fa-history"></i>
+                            <span>Login History</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_logs') }}">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>System Logs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_employees_data') }}">
+                            <i class="fas fa-database"></i>
+                            <span>Employee Data</span>
+                        </a>
+                    </li>
+                    <div class="sidebar-divider"></div>
+                    <div class="sidebar-heading">Finance</div>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_payrolls') }}">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Payroll Management</span>
+                        </a>
+                    </li>
+                </ul>
+                <!-- Add padding div after the list -->
+                <div style="padding-bottom: 30px;"></div>
+            </div>
         </nav>
 
         <!-- Page Content -->
@@ -136,21 +147,24 @@
                 </div>
             </nav>
 
-            <!-- Flash Messages -->
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="container-fluid mt-3">
-                        {% for message in messages %}
-                            <div class="alert alert-info alert-dismissible fade show">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
+            <!-- Add consistent padding for all pages -->
+            <div class="p-4">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="container-fluid">
+                            {% for message in messages %}
+                                <div class="alert alert-info alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
 
-            {% block content %}{% endblock %}
+                {% block content %}{% endblock %}
+            </div>
         </div>
     </div>
 

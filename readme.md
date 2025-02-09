@@ -5,6 +5,7 @@ A comprehensive HR management solution built with Flask and SQLite, designed for
 ## Features
 
 - **Employee Management**
+
   - Add, edit, and manage employee profiles
   - Upload profile pictures
   - Track employee information
