@@ -24,7 +24,7 @@
                             <th>Position</th>
                             <th>Email</th>
                             <th>Join Date</th>
-                            <th>Actions</th>
+                            {% comment %} <th>Actions</th> {% endcomment %}
                         </tr>
                     </thead>
                     <tbody>
@@ -46,7 +46,7 @@
                             <td>{{ employee.position }}</td>
                             <td>{{ employee.email }}</td>
                             <td>{{ employee.join_date|format_date }}</td>
-                            <td>
+                            {% comment %} <td>
                                 <div class="btn-group">
                                     <a href="{{ url_for('view_profile', user_id=employee.id) }}" 
                                        class="btn btn-sm btn-info">
@@ -63,7 +63,7 @@
                                         <i class="fas fa-key"></i>
                                     </button>
                                 </div>
-                            </td>
+                            </td> {% endcomment %}
                         </tr>
 
                         <!-- Password Update Modal -->
