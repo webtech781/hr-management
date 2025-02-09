@@ -82,7 +82,7 @@
                     </li>
 
                     <!-- Account Section - Will stick to bottom -->
-                    <div class="account-section">
+                   <!-- <div class="account-section">
                         <div class="sidebar-divider"></div>
                         <div class="sidebar-heading">Account</div>
                         <li>
@@ -92,10 +92,12 @@
                             </a>
                         </li>
                     </div>
+                    -->
 
                     <!-- Add these items to the sidebar navigation -->
                     <div class="sidebar-heading">Security</div>
                     <li class="nav-item">
+
                         <a class="nav-link" href="{{ url_for('view_credentials') }}">
                             <i class="fas fa-key"></i>
                             <span>User Credentials</span>
@@ -125,6 +127,16 @@
                         <a class="nav-link" href="{{ url_for('view_payrolls') }}">
                             <i class="fas fa-money-bill-wave"></i>
                             <span>Payroll Management</span>
+                        </a>
+                    </li>
+
+                    <!-- Move Account section here -->
+                    <div class="sidebar-divider"></div>
+                    <div class="sidebar-heading">Account</div>
+                    <li>
+                        <a href="{{ url_for('logout') }}" class="text-danger">
+                            <i class="fas fa-fw fa-sign-out-alt"></i>
+                            <span>Logout</span>
                         </a>
                     </li>
                 </ul>
