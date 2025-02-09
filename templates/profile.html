@@ -1,4 +1,7 @@
+{#
 {% extends "admin/base.html" if session.get('is_admin') else "base.html" %}
+#}
+{% extends 'employee/base.html' %}
 
 {% block content %}
 <div class="container py-5">

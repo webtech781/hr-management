@@ -1,0 +1,111 @@
+{% extends 'employee/base.html' %}
+{% block title %}My Shifts{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mt-4">My Shift Schedule</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ url_for('employee_dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">My Shifts</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-calendar-alt me-1"></i>
+            Current Month's Schedule
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Shift Type</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for shift in shifts %}
+                        <tr>
+                            <td>{{ shift.date }}</td>
+                            <td>
+                                <span class="badge {% if shift.shift_type == 'Morning' %}bg-primary
+                                    {% elif shift.shift_type == 'Evening' %}bg-info
+                                    {% else %}bg-dark{% endif %}">
+                                    {{ shift.shift_type }}
+                                </span>
+                            </td>
+                            <td>{{ shift.location }}</td>
+                            <td>
+                                {% set current_date = today|string %}
+                                {% if shift.date < current_date %}
+                                    <span class="badge bg-secondary">Completed</span>
+                                {% elif shift.date == current_date %}
+                                    <span class="badge bg-success">Today</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Upcoming</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No shifts scheduled</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shift Time Information -->
+    <div class="row">
+        <div class="col-xl-4 col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-clock me-1"></i>
+                    Morning Shift
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">09:00 AM - 05:00 PM</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-clock me-1"></i>
+                    Evening Shift
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">04:00 PM - 12:00 AM</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-clock me-1"></i>
+                    Night Shift
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">12:00 AM - 08:00 AM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('table').DataTable({
+            order: [[0, 'asc']], // Sort by date column
+            pageLength: 10
+        });
+    });
+</script>
+{% endblock %}
+
+{% endblock %} 
