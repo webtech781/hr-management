@@ -2,6 +2,8 @@
 
 A comprehensive HR management solution built with Flask and SQLite, designed for small to medium-sized organizations.
 
+[Documentation](https://github.com/webtech781/hr-management/templates/documentation.html)
+
 ## Features
 
 - **Employee Management**
